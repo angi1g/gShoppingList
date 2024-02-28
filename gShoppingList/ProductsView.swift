@@ -8,20 +8,18 @@
 import SwiftUI
 import SwiftData
 
-struct AddProductView: View {
+struct ProductsView: View {
     @Environment(\.modelContext) var modelContext
-    @Query(filter: #Predicate<Product> { product in
-        product.toBuy == false
-    }) private var products: [Product]
+    @Query(sort: \Product.name) private var products: [Product]
     @State private var searchProduct = Product()
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         Group {
             TextField("Nome del prodotto", text: $searchProduct.name)
-                .font(.title)
-            TextField("Genere del prodotto", text: $searchProduct.type)
                 .font(.title2)
+            TextField("Genere del prodotto", text: $searchProduct.type)
+                .font(.title3)
         }
         .textFieldStyle(.roundedBorder)
         .overlay {
@@ -40,7 +38,11 @@ struct AddProductView: View {
                 if showProduct(product: product) {
                     ProductNameView(product: product)
                         .onTapGesture {
-                            product.toBuy = true
+                            product.toBuy.toggle()
+                            if product.toBuy {
+                                product.addedOn = Date.now
+                                // TODO: aggiungere anche addedBy
+                            }
                             modelContext.insert(product)
                         }
                 }
@@ -49,16 +51,17 @@ struct AddProductView: View {
         }
         .listStyle(.plain)
         .toolbar {
+            /* NON SERVE
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .cancel) {
                     dismiss()
                 } label: {
-                    Text("Indietro")
+                    Image(systemName: "chevron.backward")
                 }
-            }
+            }*/
             ToolbarItem {
                 Button(action: addItem) {
-                    Label("Add Item", systemImage: "plus")
+                    Label("Aggiungi", systemImage: "plus")
                 }
             }
         }
@@ -74,9 +77,14 @@ struct AddProductView: View {
     
     private func addItem() {
         let newProduct = Product()
-        newProduct.name = searchProduct.name
-        newProduct.type = searchProduct.type
-        modelContext.insert(newProduct)
+        newProduct.name = searchProduct.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        newProduct.type = searchProduct.type.trimmingCharacters(in: .whitespacesAndNewlines)
+        newProduct.toBuy = true
+        newProduct.addedOn = Date.now
+        // TODO: aggiungere anche addedBy
+        if !newProduct.name.isEmpty {
+            modelContext.insert(newProduct)
+        }
         searchProduct.name = ""
         searchProduct.type = ""
     }
@@ -91,7 +99,7 @@ struct AddProductView: View {
 
 #Preview {
     NavigationStack {
-        AddProductView()
+        ProductsView()
         .modelContainer(for: Product.self, inMemory: true)
     }
 }

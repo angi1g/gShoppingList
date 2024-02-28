@@ -20,7 +20,6 @@ struct ListView: View {
             Text("Lista della Spesa")
                 .font(.title)
                 .bold()
-            
             List {
                 ForEach(products) { product in
                     ProductNameView(product: product)
@@ -39,7 +38,7 @@ struct ListView: View {
             .listStyle(.plain)
             .sheet(isPresented: $sheetIsPresented) {
                 NavigationStack {
-                    AddProductView()
+                    ProductsView()
                 }
             }
         }

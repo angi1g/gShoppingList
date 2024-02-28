@@ -10,11 +10,11 @@ import SwiftData
 
 @Model
 class Product {
-    @Attribute(.unique) var name = ""
+    var name = ""
     var type = ""
     var toBuy = false
     var addedBy = ""
-    var addedOn = Date()
+    var addedOn = Date() // TODO: salvare un array con le ultime 10 date in cui il prodotto è stato aggiunto in modo da suggerire il prossimo acquisto
     
     init(name: String = "", type: String = "", toBuy: Bool = false, addedBy: String = "", addedOn: Date = Date()) {
         self.name = name
